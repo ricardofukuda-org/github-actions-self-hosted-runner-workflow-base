@@ -1,4 +1,4 @@
-# About: This CD pipeline deploys the helm chart into the private EKS (kubernetes) cluster using the gitops approach through argocd.
+# About: Base CD pipeline to deploy application's helm chart into the private EKS (kubernetes) cluster using the gitops approach through argocd.
 name: CD pipeline - argocd
 permissions:
   id-token: write
