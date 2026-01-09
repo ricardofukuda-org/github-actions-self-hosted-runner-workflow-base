@@ -19,20 +19,21 @@ on:
         required: true
 
 env:
-  APPLICATION: ${{ inputs.application }}
+  APPLICATION: ${{ vars.application }}
+  ENVIRONMENT: ${{ vars.ENVIRONMENT }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   ARGOCD_APPLICATIONS_REPO: argocd-application-test
 
 jobs:
   deploy:
     runs-on: github-arc-runner-set
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environment }} # when set, automatically access caller's workflow environments variables
     steps:
     - name: generate env vars
       run: |
         BUILD_DATE=$(date -u +"%Y.%m.%d-%H.%M.%S")
         echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
-        echo "DOCKER_TAG=${{ vars.ENVIRONMENT }}-$BUILD_DATE" >> $GITHUB_ENV
+        echo "DOCKER_TAG=${{ env.ENVIRONMENT }}-$BUILD_DATE" >> $GITHUB_ENV
       shell: bash
     - name: Checkout sourcecode
       uses: actions/checkout@v4
@@ -67,11 +68,11 @@ jobs:
         token: ${{ secrets.GHA_RUNNER_POC_CICD_PAT }}
     - name: Update ArgoCD application
       env:
-        ARGOCD_APPLICATION_VALUES_PATH: "applications/overlays/${{ vars.ENVIRONMENT }}/${{ env.APPLICATION }}"
+        ARGOCD_APPLICATION_VALUES_PATH: "applications/overlays/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }}"
       run: |
-        cp helm-chart/values.yaml helm-chart/values-${{ vars.ENVIRONMENT }}.yaml ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
+        cp helm-chart/values.yaml helm-chart/values-${{ env.ENVIRONMENT }}.yaml ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
 
-        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy: ${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ vars.ENVIRONMENT }}.yaml
+        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy: ${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
         
         cd ${{ env.ARGOCD_APPLICATIONS_REPO }}/
         git config user.name "GitHub Actions Bot"
