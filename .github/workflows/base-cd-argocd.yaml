@@ -7,9 +7,6 @@ permissions:
 on:
   workflow_call:
     inputs:
-      application:
-        required: true
-        type: string
       environment:
         description: 'Select the environment to deploy to'
         required: true
@@ -19,7 +16,7 @@ on:
         required: true
 
 env:
-  APPLICATION: ${{ vars.application }}
+  APPLICATION: ${{ vars.APPLICATION }}
   ENVIRONMENT: ${{ vars.ENVIRONMENT }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   ARGOCD_APPLICATIONS_REPO: argocd-application-test
