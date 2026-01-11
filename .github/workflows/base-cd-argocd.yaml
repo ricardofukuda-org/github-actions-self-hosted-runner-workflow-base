@@ -18,6 +18,7 @@ on:
 env:
   APPLICATION: ${{ vars.APPLICATION }}
   ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+  SECRETMANAGER_SECRET_ID: eks-infra/${{ vars.ENVIRONMENT }}/${{ vars.APPLICATION }}
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   ARGOCD_APPLICATIONS_REPO: argocd-application-test
 
@@ -28,7 +29,7 @@ jobs:
     steps:
     - name: generate env vars
       run: |
-        BUILD_DATE=$(date -u +"%Y.%m.%dT%H.%M.%SZ")
+        BUILD_DATE=$(date -u +"%Y-%m-%dT%H.%M.%SZ")
         echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
         echo "DOCKER_TAG=${{ env.ENVIRONMENT }}-$BUILD_DATE" >> $GITHUB_ENV
       shell: bash
@@ -49,7 +50,7 @@ jobs:
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip -q awscliv2.zip
         sudo ./aws/install
-        aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage ${{ env.BUILD_DATE }} --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)
+        aws secretsmanager update-secret-version-stage --secret-id ${{ env.SECRETMANAGER_SECRET_ID }} --version-stage ${{ env.BUILD_DATE }} --move-to-version-id $(aws secretsmanager get-secret-value --secret-id ${{ env.SECRETMANAGER_SECRET_ID }} --version-stage AWSCURRENT | jq .VersionId -r)
     - name: Setup buildx
       uses: docker/setup-buildx-action@v3
       with:
@@ -77,9 +78,10 @@ jobs:
       run: |
         cp helm-chart/values.yaml helm-chart/values-${{ env.ENVIRONMENT }}.yaml ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
 
-        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy: ${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
-        
         cd ${{ env.ARGOCD_APPLICATIONS_REPO }}/
+        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy: ${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
+        sed -i 's/\(secret_version: [^\n]\+\)/secret_version: ${{ env.DOCKER_TAG }} # ${{ env.SECRETMANAGER_SECRET_ID }}/g' ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
+        
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
         git add ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
