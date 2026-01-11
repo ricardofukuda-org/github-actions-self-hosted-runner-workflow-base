@@ -3,7 +3,7 @@ name: CD pipeline - argocd
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 on:
   workflow_call:
