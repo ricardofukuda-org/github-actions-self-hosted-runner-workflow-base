@@ -81,13 +81,13 @@ jobs:
         cp helm-chart/values.yaml helm-chart/values-${{ env.ENVIRONMENT }}.yaml ${{ env.ARGOCD_APPLICATIONS_REPO }}/${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
 
         cd ${{ env.ARGOCD_APPLICATIONS_REPO }}/
-        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy: ${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
+        sed -i 's/\(tag: [^\n]\+\)/tag: ${{ env.DOCKER_TAG }} # deploy by @${{ github.actor }} branch: ${{ env.BRANCH_NAME }} commit: ${{ github.sha }}/g' ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
         sed -i 's/\(secret_version: [^\n]\+\)/secret_version: ${{ env.DOCKER_TAG }} # ${{ env.SECRETMANAGER_SECRET_ID }}/g' ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/values-${{ env.ENVIRONMENT }}.yaml
         
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
         git add ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
-        git commit -m "${{ env.APPLICATION }}/${{ env.DOCKER_TAG }} deploy"
+        git commit -m "${{ env.APPLICATION }}/${{ env.DOCKER_TAG }} deploy by @${{ github.actor }}"
         git push
     - name: push git tag
       env:
@@ -95,6 +95,6 @@ jobs:
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
-        git tag -a '${{ env.DOCKER_TAG }}' -m "deploy: '${{ github.actor }}'"
+        git tag -a '${{ env.DOCKER_TAG }}' -m "deploy by @${{ github.actor }}"
         git push origin '${{ env.DOCKER_TAG }}'
 
