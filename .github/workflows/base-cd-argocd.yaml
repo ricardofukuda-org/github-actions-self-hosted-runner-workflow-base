@@ -1,5 +1,6 @@
 # About: Base CD pipeline to deploy application's helm chart into the private EKS (kubernetes) cluster using the gitops approach through argocd.
 name: CD pipeline - argocd
+run-name: Deploy to ${{ vars.ENVIRONMENT }} by @${{ github.actor }}
 permissions:
   id-token: write
   contents: read
@@ -89,5 +90,7 @@ jobs:
         git push
     - name: push git tag
       run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
         git tag -a '${{ env.DOCKER_TAG }}' -m "deploy: '${{ github.actor }}'"
         git push origin '${{ env.DOCKER_TAG }}'
