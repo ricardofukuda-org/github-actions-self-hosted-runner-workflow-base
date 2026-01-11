@@ -18,7 +18,7 @@ on:
 env:
   APPLICATION: ${{ vars.APPLICATION }}
   ENVIRONMENT: ${{ vars.ENVIRONMENT }}
-  SECRETMANAGER_SECRET_ID: eks-infra/${{ vars.ENVIRONMENT }}/${{ vars.APPLICATION }}
+  SECRETMANAGER_SECRET_ID: 'eks-infra\/${{ vars.ENVIRONMENT }}\/${{ vars.APPLICATION }}'
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   ARGOCD_APPLICATIONS_REPO: argocd-application-test
 
