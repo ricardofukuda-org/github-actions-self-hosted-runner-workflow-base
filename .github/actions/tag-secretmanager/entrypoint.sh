@@ -1,2 +1,0 @@
-#!/bin/bash
-aws secretsmanager update-secret-version-stage --secret-id $INPUT_SECRET_ID --version-stage $(date -u +"%Y-%m-%dT%H.%M.%SZ") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id $INPUT_SECRET_ID --version-stage AWSCURRENT | jq .VersionId -r)
