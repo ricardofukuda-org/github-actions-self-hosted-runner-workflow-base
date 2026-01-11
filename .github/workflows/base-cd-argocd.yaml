@@ -50,6 +50,15 @@ jobs:
       with:
         driver-opts: |
           network=host
+
+    - name: push git tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+        git tag -a '${{ env.DOCKER_TAG }}' -m "deploy: '${{ github.actor }}'"
+        git push origin '${{ env.DOCKER_TAG }}'
     - name: Docker build/push
       uses: docker/build-push-action@v5
       env:
@@ -88,11 +97,4 @@ jobs:
         git add ${{ env.ARGOCD_APPLICATION_VALUES_PATH }}/
         git commit -m "${{ env.APPLICATION }}/${{ env.DOCKER_TAG }} deploy"
         git push
-    - name: push git tag
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
-        git tag -a '${{ env.DOCKER_TAG }}' -m "deploy: '${{ github.actor }}'"
-        git push origin '${{ env.DOCKER_TAG }}'
+
