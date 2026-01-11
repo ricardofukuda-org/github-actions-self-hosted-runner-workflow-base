@@ -44,7 +44,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
     - name: Tag SecretManager
-      uses: ./.github/actions/tag-secretmanager
+      uses: ../actions/tag-secretmanager
       with:
         secret_id: "eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }}"
     - name: Setup buildx
