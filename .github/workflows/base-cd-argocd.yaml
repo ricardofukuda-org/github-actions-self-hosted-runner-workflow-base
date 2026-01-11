@@ -43,14 +43,14 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
-    - name: Tag SecretManager
-      uses: ricardofukuda-org/github-actions-self-hosted-runner-workflow-base/.github/actions/tag-secretmanager@master
-      with:
-        secret_id: "eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }}"
 #    - name: Tag SecretManager
-#      uses: docker://amazon/aws-cli:2.30.6
+#      uses: ricardofukuda-org/github-actions-self-hosted-runner-workflow-base/.github/actions/tag-secretmanager@master
 #      with:
-#        run: aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage $(date -u +"%Y-%m-%dT%H.%M.%SZ") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)
+#        secret_id: "eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }}"
+    - name: Tag SecretManager
+      shell: bash
+      run: |
+        aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage $(date -u +"%Y-%m-%dT%H.%M.%SZ") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)
 
 #    - name: Tag SecretManager
 #      uses: docker://amazon/aws-cli:2.30.6
