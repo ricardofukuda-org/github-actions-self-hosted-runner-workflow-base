@@ -47,10 +47,18 @@ jobs:
 #      uses: ricardofukuda-org/github-actions-self-hosted-runner-workflow-base/.github/actions/tag-secretmanager@master
 #      with:
 #        secret_id: "eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }}"
+#    - name: Tag SecretManager
+#      uses: docker://amazon/aws-cli:2.30.6
+#      with:
+#        run: aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage $(date -u +"%Y-%m-%dT%H.%M.%SZ") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)
+
     - name: Tag SecretManager
       uses: docker://amazon/aws-cli:2.30.6
       with:
-        run: aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage $(date -u +"%Y-%m-%dT%H.%M.%SZ") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)
+        entrypoint: bash
+        args: -c "export AWS_REGION=us-east-1; export AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID}}; export AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY}}; export AWS_SESSION_TOKEN=${{ env.AWS_SESSION_TOKEN}}; aws secretsmanager update-secret-version-stage --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage $(date -u +\"%Y-%m-%dT%H.%M.%SZ\") --move-to-version-id $(aws secretsmanager get-secret-value --secret-id eks-infra/${{ env.ENVIRONMENT }}/${{ env.APPLICATION }} --version-stage AWSCURRENT | jq .VersionId -r)"
+
+
     - name: Setup buildx
       uses: docker/setup-buildx-action@v3
       with:
