@@ -1,0 +1,9 @@
+name: tag-secretmanager
+author: fukuda
+inputs:
+  secret_id:
+    required: true
+runs:
+  using: 'docker'
+  image: 'amazon/aws-cli:2.30.6'
+  entrypoint: '/entrypoint.sh'
