@@ -89,6 +89,8 @@ jobs:
         git commit -m "${{ env.APPLICATION }}/${{ env.DOCKER_TAG }} deploy"
         git push
     - name: push git tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.GHA_RUNNER_POC_CICD_PAT }}
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
