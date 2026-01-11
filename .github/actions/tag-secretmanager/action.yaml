@@ -5,5 +5,5 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: 'amazon/aws-cli:2.30.6'
+  image: 'docker://amazon/aws-cli:2.30.6'
   entrypoint: '/entrypoint.sh'
